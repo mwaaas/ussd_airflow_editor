@@ -8,6 +8,12 @@ import Error from './Error'
 import Preview from './Preview'
 import pkg from '../../package.json'
 import { base64ToState } from '../utils'
+import axios from 'axios'
+import { JsonEditor as Editor } from 'jsoneditor-react'
+import 'jsoneditor-react/es/editor.min.css'
+import ace from 'brace'
+import 'brace/mode/json'
+import 'brace/theme/github'
 
 let mermaidVersion = pkg.dependencies.mermaid
 if (mermaidVersion[0] === '^') {
@@ -19,15 +25,27 @@ class Edit extends React.Component {
     super(props)
     this.onCodeChange = this.onCodeChange.bind(this)
     this.onMermaidConfigChange = this.onMermaidConfigChange.bind(this)
-
+    this.handleChange = this.handleChange.bind(this)
+    this.getMermaidText = this.getMermaidText.bind(this)
     const { match: { params: { base64 } }, location: { search } } = this.props
     this.json = base64ToState(base64, search)
     mermaid.initialize(this.json.mermaid)
+    this.state = {mermaidText: 'graph TD\nA ==> C'}
+    this.getMermaidText()
   }
-
+  getMermaidText () {
+    axios.post('http://localhost:8007/ussd_airflow/mermaid_text',
+      {journey: this.json.code}).then(response => {
+      this.setState({mermaidText: response.data.mermaidText})
+    }).catch(
+      err => {
+        console.log('err:', err)
+      })
+  }
   onCodeChange (event) {
     const { history, match: { path } } = this.props
     this.json.code = event.target.value
+    this.getMermaidText()
     const base64 = Base64.encodeURI(JSON.stringify(this.json))
     history.push(path.replace(':base64', base64))
   }
@@ -47,17 +65,27 @@ class Edit extends React.Component {
     }
   }
 
+  handleChange (content) {
+    this.json.code = content
+    this.getMermaidText()
+  }
   render () {
     const { match: { url } } = this.props
     return <div>
-      <h1>Mermaid Live Editor</h1>
+      <h1>Airflow Ussd Live Editor</h1>
       <Divider />
       <Row gutter={16}>
         <Col span={8}>
           <Affix>
-            <Card title='Code'>
-              <Input.TextArea autosize={{ minRows: 4, maxRows: 16 }} value={this.json.code} onChange={this.onCodeChange} />
-            </Card>
+            <Editor
+              value={this.json.code}
+              onChange={this.handleChange}
+              mode={'code'}
+              ace={ace}
+              theme='ace/theme/github'
+              allowedModes={['code', 'tree']}
+              history
+            />
           </Affix>
           <Card title='Mermaid configuration'>
             <Input.TextArea autosize={{ minRows: 4, maxRows: 16 }} defaultValue={JSON.stringify(this.json.mermaid, null, 2)} onChange={this.onMermaidConfigChange} />
@@ -73,7 +101,7 @@ class Edit extends React.Component {
           </Card>
         </Col>
         <Col span={16}>
-          <Route exact path={url} render={(props) => <Preview {...props} code={this.json.code} />} />
+          <Route exact path={url} render={(props) => <Preview {...props} code={this.state.mermaidText} />} />
           <Route path={url + '/error/:base64'} component={Error} />
           <h3 style={{ textAlign: 'right' }}>Powered by mermaid <Tag color='green'>{mermaidVersion}</Tag></h3>
         </Col>

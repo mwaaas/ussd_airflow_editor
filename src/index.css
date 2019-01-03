@@ -9,3 +9,16 @@ html, body {
 .ant-card {
   margin-bottom: 16px;
 }
+
+.quitScreen > rect{
+  fill:#FF0000;
+  stroke:#FFFF00;
+  stroke-width:4px;
+}
+
+.cssScreen {
+        fill:#f9f;
+        stroke:#333;
+        stroke-width:4px;
+        height: 100%;
+    }

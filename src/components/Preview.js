@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import moment from 'moment'
 import { Base64 } from 'js-base64'
 import mermaid from 'mermaid'
+import { parseMermaidText } from '../utils'
 
 class Preview extends React.Component {
   constructor (props) {
@@ -35,7 +36,7 @@ class Preview extends React.Component {
   initMermaid () {
     const { code, history, match: { url } } = this.props
     try {
-      mermaid.parse(code)
+      parseMermaidText(code)
       mermaid.init(undefined, this.container)
     } catch (e) { // {str, hash}
       const base64 = Base64.encodeURI(e.str || e.message)

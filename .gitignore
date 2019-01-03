@@ -3,3 +3,5 @@ coverage/
 .cache/
 build/
 yarn-error.log
+.idea
+.build
