@@ -30,13 +30,13 @@ class Edit extends React.Component {
     const { match: { params: { base64 } }, location: { search } } = this.props
     this.json = base64ToState(base64, search)
     mermaid.initialize(this.json.mermaid)
-    this.state = {mermaidText: 'graph TD\nA ==> C'}
+    this.state = { mermaidText: 'graph TD\nA ==> C' }
     this.getMermaidText()
   }
   getMermaidText () {
     axios.post('http://localhost:8007/ussd_airflow/mermaid_text',
-      {journey: this.json.code}).then(response => {
-      this.setState({mermaidText: response.data.mermaidText})
+      { journey: this.json.code }).then(response => {
+      this.setState({ mermaidText: response.data.mermaidText })
     }).catch(
       err => {
         console.log('err:', err)
