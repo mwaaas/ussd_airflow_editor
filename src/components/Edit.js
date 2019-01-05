@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col, Input, Icon, Tag, Affix, Card, Divider } from 'antd'
+import { Affix, Card, Col, Divider, Icon, Input, Row, Tag } from 'antd'
 import { Route } from 'react-router-dom'
 import { Base64 } from 'js-base64'
 import mermaid from 'mermaid'
@@ -69,6 +69,25 @@ class Edit extends React.Component {
     this.json.code = content
     this.getMermaidText()
   }
+
+  validate (content) {
+    // Add a response interceptor
+    axios.interceptors.response.use((response) => {
+      if (Array.isArray(response.data)) {
+        console.log('errors:', response.data)
+        return response.data
+      }
+      return response
+    }, (error) => {
+      return Promise.reject(error)
+    })
+
+    let promise = axios.post(
+      'http://localhost:8007/ussd_airflow/validate_journey',
+      { journey: content, error_type: 'mermaid_txt' }
+    )
+    return promise
+  }
   render () {
     const { match: { url } } = this.props
     return <div>
@@ -84,6 +103,7 @@ class Edit extends React.Component {
               ace={ace}
               theme='ace/theme/github'
               allowedModes={['code', 'tree']}
+              onValidate={this.validate}
               history
             />
           </Affix>

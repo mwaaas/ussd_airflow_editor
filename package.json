@@ -38,10 +38,5 @@
       "*.bundle.js",
       "docs/"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn test"
-    }
   }
 }
