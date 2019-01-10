@@ -22,3 +22,7 @@ html, body {
         stroke-width:4px;
         height: 100%;
     }
+
+.ace_editor {
+    min-height: 500px;
+}
