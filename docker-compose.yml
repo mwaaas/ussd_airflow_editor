@@ -1,0 +1,16 @@
+version: "3.4"
+services:
+  app:
+    build:
+      context: .
+      target: react-build
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - 8087:4100
+
+  app_nginx:
+    build:
+      context: .
+    ports:
+      - 8088:80
